@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Spiders\Scraping;
+namespace App\Spiders;
 
+use App\Processors\TestProcessor;
 use Generator;
 use RoachPHP\Downloader\Middleware\RequestDeduplicationMiddleware;
 use RoachPHP\Extensions\LoggerExtension;
@@ -10,10 +11,10 @@ use RoachPHP\Http\Response;
 use RoachPHP\Spider\BasicSpider;
 use RoachPHP\Spider\ParseResult;
 
-class TransfersByDate extends BasicSpider
+class TestSpider extends BasicSpider
 {
     public array $startUrls = [
-        //
+        'https://webscraper.io/test-sites/e-commerce/allinone'
     ];
 
     public array $downloaderMiddleware = [
@@ -25,7 +26,7 @@ class TransfersByDate extends BasicSpider
     ];
 
     public array $itemProcessors = [
-        //
+        TestProcessor::class,
     ];
 
     public array $extensions = [
@@ -42,12 +43,10 @@ class TransfersByDate extends BasicSpider
      */
     public function parse(Response $response): Generator
     {
-        // todo...
+        $products = $response->filterXPath('//h4/a')->each(function($item){
+            return $item->text();
+        });
+
+        yield $this->item($products);
     }
 }
-
-
-/**
- * php artisan roach:run Scraping\TransfersByDate
- * 
- */
